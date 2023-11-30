@@ -12,7 +12,7 @@ from analytiikka_talous_hankinta.analytiikka_talous_hankinta_services_stack impo
 Pipeline stage
 
 """
-class AnalytiikkaMuutStage(Stage):
+class AnalytiikkaTalousHankintaStage(Stage):
 
     def __init__(self,
                  scope: Construct, 

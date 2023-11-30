@@ -76,22 +76,7 @@ class AnalytiikkaTalousHankintaServicesStack(Stack):
         # Lookup: Glue rooli
         glue_role = aws_iam.Role.from_role_arn(self, "GlueRole", f"arn:aws:iam::{self.account}:role/{glue_role_name}", mutable = False)
 
-
-
-        # glue_common_jdbc_connection = GlueJdbcConnection(self,
-        #                         id = "common-jdbc-connection",
-        #                         vpc = vpc,
-        #                         security_groups = [ glue_securitygroup ],
-        #                         description = "Common connection to allow glue job to access internet through vpc",
-        #                         properties = {
-        #                             "JDBC_CONNECTION_URL": "jdbc:http://<host>:<port>/api",
-        #                             "USERNAME": "username",
-        #                             "PASSWORD": "password"
-        #                         })
-
-
-
-
+        #
         # HUOM: Lisää tarvittavat tämän jälkeen. Käytä yllä haettuja asioita tarvittaessa (bukettien nimet, roolit, jne)
         #
 
