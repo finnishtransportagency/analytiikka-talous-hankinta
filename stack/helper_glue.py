@@ -154,7 +154,8 @@ class PythonSparkGlueJob(Construct):
                  schedule_description: str = None,
                  enable_metrics: bool = True,
                  enable_continuous_logging: bool = True,
-                 enable_bookmark: bool = False
+                 enable_bookmark: bool = False,
+                 temp_bucket_name: str = None
                  ):
         super().__init__(scope, id)
 
@@ -168,7 +169,7 @@ class PythonSparkGlueJob(Construct):
             destination_key_prefix = path
         )
 
-        default_arguments = arguments
+        default_arguments = arguments.copy()
         if enable_metrics:
             if default_arguments == None:
                 default_arguments = {
@@ -186,11 +187,23 @@ class PythonSparkGlueJob(Construct):
         if enable_continuous_logging:
             if default_arguments == None:
                 default_arguments = {
-                    "--enable-continuous-cloudwatch-log": "true"
+                    "--enable-continuous-cloudwatch-log": "",
+                    "--enable-continuous-log-filter": "false"
                 }
             else:
-                default_arguments["----enable-continuous-cloudwatch-log"] = "true"
+                default_arguments["----enable-continuous-cloudwatch-log"] = ""
+                default_arguments["----enable-continuous-log-filter"] = "false"
 
+        if temp_bucket_name != None and temp_bucket_name != "":
+            if default_arguments == None:
+                default_arguments = {
+                    "--TempDir": f"s3//{temp_bucket_name}/{id}"
+                }
+            else:
+                default_arguments["--TempDir"] = f"s3//{temp_bucket_name}/{id}"
+
+        print("default arguments")
+        print(default_arguments)
 
         self.job = aws_glue_alpha.Job(self, 
                                       id = id,
