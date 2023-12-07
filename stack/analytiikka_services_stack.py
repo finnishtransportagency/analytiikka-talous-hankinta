@@ -47,9 +47,6 @@ class AnalytiikkaServicesStack(Stack):
         temp_bucket_name = properties["temp_bucket_name"]
         # Yhteinen arkisto- buketti
         archive_bucket_name = properties["archive_bucket_name"]
-        # Yhteinen lokibuketti
-        log_bucket_name = properties["log_bucket_name"]
-        log_bucket = aws_s3.Bucket.from_bucket_name(self, "log-bucket", bucket_name = log_bucket_name)
         # Yhteiskäyttöinen rooli lambdoille
         lambda_role_name = self.node.try_get_context("lambda_role_name")
         # Yhteiskäyttöinen securoty group lambdoille. Sallii akiken koska tilin yhteydet on rajattu operaattorin toimesta
@@ -245,6 +242,7 @@ class AnalytiikkaServicesStack(Stack):
                  worker = "G 1X",
                  version = "3.0",
                  role = glue_role,
+                 project_tag = "Sampo",
                  tags = None,
                  arguments = {
                      "--db_tables": get_parameter("glue/sampo_db_reader", environment, "db_tables"),
