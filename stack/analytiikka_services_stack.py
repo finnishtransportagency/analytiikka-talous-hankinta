@@ -238,7 +238,7 @@ class AnalytiikkaServicesStack(Stack):
                  path = "glue/sampo_db_reader",
                  index = "sampo_db_reader.py",
                  script_bucket = script_bucket,
-                 timeout_min = 1,
+                 timeout_min = 300,
                  description = "For querying Sampo views and create files for TalousDV ADE loads",
                  worker = "G 1X",
                  version = "3.0",

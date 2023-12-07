@@ -151,7 +151,9 @@ class PythonSparkGlueJob(Construct):
                  spark_log_bucket: aws_s3.IBucket = None,
                  spark_log_prefix: str = None,
                  schedule: str = None,
-                 schedule_description: str = None
+                 schedule_description: str = None,
+                 enable_metrics: bool = True,
+                 enable_bookmark: bool = False
                  ):
         super().__init__(scope, id)
 
@@ -164,6 +166,23 @@ class PythonSparkGlueJob(Construct):
             destination_bucket = script_bucket,
             destination_key_prefix = path
         )
+
+        default_arguments = arguments
+        if enable_metrics:
+            if default_arguments == None:
+                default_arguments = {
+                    "--enable-metrics": ""
+                }
+            else:
+                default_arguments["--enable-metrics"] = ""
+        if enable_bookmark:
+            if default_arguments == None:
+                default_arguments = {
+                    "--job-bookmark-option": "job-bookmark-enable"
+                }
+            else:
+                default_arguments["--job-bookmark-option"] = "job-bookmark-enable"
+        
 
         self.job = aws_glue_alpha.Job(self, 
                                            id = id,
@@ -180,14 +199,15 @@ class PythonSparkGlueJob(Construct):
                                                script = aws_glue_alpha.Code.from_bucket(deployment.deployed_bucket, f"{path}/{index}")
                                            ),
                                            description = description,
-                                           default_arguments = arguments,
+                                           default_arguments = default_arguments,
                                            role = role,
                                            worker_type = get_worker_type(worker),
                                            worker_count = 2,
                                            max_retries = 0,
                                            timeout = get_timeout(timeout_min),
-                                           max_concurrent_runs = 2,
-                                           connections = connections
+                                           max_concurrent_runs = 1,
+                                           connections = connections,
+                                           
                                            )
 
         add_tags(self.job, tags, project_tag = project_tag)
@@ -198,7 +218,7 @@ class PythonSparkGlueJob(Construct):
             self.trigger = aws_glue.CfnTrigger(self,
                                         id = trigger_name,
                                         actions = [aws_glue.CfnTrigger.ActionProperty(
-                                            arguments = arguments,
+                                            # arguments = arguments,
                                             job_name = id,
                                             timeout = timeout_min
                                             )
