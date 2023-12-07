@@ -153,6 +153,7 @@ class PythonSparkGlueJob(Construct):
                  schedule: str = None,
                  schedule_description: str = None,
                  enable_metrics: bool = True,
+                 enable_continuous_logging: bool = True,
                  enable_bookmark: bool = False
                  ):
         super().__init__(scope, id)
@@ -182,33 +183,39 @@ class PythonSparkGlueJob(Construct):
                 }
             else:
                 default_arguments["--job-bookmark-option"] = "job-bookmark-enable"
-        
+        if enable_continuous_logging:
+            if default_arguments == None:
+                default_arguments = {
+                    "--enable-continuous-cloudwatch-log": "true"
+                }
+            else:
+                default_arguments["----enable-continuous-cloudwatch-log"] = "true"
+
 
         self.job = aws_glue_alpha.Job(self, 
-                                           id = id,
-                                           job_name = id,
-                                           spark_ui = aws_glue_alpha.SparkUIProps(
-                                               enabled = enable_spark_ui,
-                                               bucket = spark_log_bucket,
-                                               prefix = spark_log_prefix
-                                           ),
-                                           executable = aws_glue_alpha.JobExecutable.python_etl(
-                                               glue_version = get_version(version),
-                                               python_version = aws_glue_alpha.PythonVersion.THREE,
-                                               #script = aws_glue_alpha.Code.from_asset(get_path(path))
-                                               script = aws_glue_alpha.Code.from_bucket(deployment.deployed_bucket, f"{path}/{index}")
-                                           ),
-                                           description = description,
-                                           default_arguments = default_arguments,
-                                           role = role,
-                                           worker_type = get_worker_type(worker),
-                                           worker_count = 2,
-                                           max_retries = 0,
-                                           timeout = get_timeout(timeout_min),
-                                           max_concurrent_runs = 1,
-                                           connections = connections,
-                                           
-                                           )
+                                      id = id,
+                                      job_name = id,
+                                      spark_ui = aws_glue_alpha.SparkUIProps(
+                                          enabled = enable_spark_ui,
+                                          bucket = spark_log_bucket,
+                                          prefix = spark_log_prefix
+                                      ),
+                                      executable = aws_glue_alpha.JobExecutable.python_etl(
+                                          glue_version = get_version(version),
+                                          python_version = aws_glue_alpha.PythonVersion.THREE,
+                                          #script = aws_glue_alpha.Code.from_asset(get_path(path))
+                                          script = aws_glue_alpha.Code.from_bucket(deployment.deployed_bucket, f"{path}/{index}")
+                                      ),
+                                      description = description,
+                                      default_arguments = default_arguments,
+                                      role = role,
+                                      worker_type = get_worker_type(worker),
+                                      worker_count = 2,
+                                      max_retries = 0,
+                                      timeout = get_timeout(timeout_min),
+                                      max_concurrent_runs = 1,
+                                      connections = connections
+                                     )
 
         add_tags(self.job, tags, project_tag = project_tag)
 
