@@ -187,12 +187,12 @@ class PythonSparkGlueJob(Construct):
         if enable_continuous_logging:
             if default_arguments == None:
                 default_arguments = {
-                    "--enable-continuous-cloudwatch-log": "",
+                    "--enable-continuous-cloudwatch-log": "true",
                     "--enable-continuous-log-filter": "false"
                 }
             else:
-                default_arguments["----enable-continuous-cloudwatch-log"] = ""
-                default_arguments["----enable-continuous-log-filter"] = "false"
+                default_arguments["--enable-continuous-cloudwatch-log"] = "true"
+                default_arguments["--enable-continuous-log-filter"] = "false"
 
         if temp_bucket_name != None and temp_bucket_name != "":
             if default_arguments == None:
