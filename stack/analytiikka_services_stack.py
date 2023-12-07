@@ -47,6 +47,9 @@ class AnalytiikkaServicesStack(Stack):
         temp_bucket_name = properties["temp_bucket_name"]
         # Yhteinen arkisto- buketti
         archive_bucket_name = properties["archive_bucket_name"]
+        # Yhteinen lokibuketti
+        log_bucket_name = properties["log_bucket_name"]
+        log_bucket = aws_s3.Bucket.from_bucket_name(self, "log-bucket", bucket_name = log_bucket_name)
         # Yhteiskäyttöinen rooli lambdoille
         lambda_role_name = self.node.try_get_context("lambda_role_name")
         # Yhteiskäyttöinen securoty group lambdoille. Sallii akiken koska tilin yhteydet on rajattu operaattorin toimesta
@@ -220,32 +223,45 @@ class AnalytiikkaServicesStack(Stack):
 
 
 
-        # glue_sampo_oracle_connection = GlueJdbcConnection(self,
-        #                         id = "sampo-jdbc-oracle-connection",
-        #                         vpc = vpc,
-        #                         security_groups = [ glue_securitygroup ],
-        #                         properties = {
-        #                             "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//<host>:<port>/<sid>",
-        #                             "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
-        #                             "JDBC_DRIVER_JAR_URI": f"s3://{script_bucket_name}/drivers/oracle/ojdbc8.jar",
-        #                             "SECRET_ID": f"db-sampo-oracle-{environment}"
-        #                         })
-        # g1 = PythonSparkGlueJob(self,
-        #          id = "testi3", 
-        #          path = "glue/testi3",
-        #          index = "testi3.py",
-        #          script_bucket = script_bucket,
-        #          timeout_min = 1,
-        #          description = "Glue jobin kuvaus",
-        #          worker = "G 1X",
-        #          version = None,
-        #          role = glue_role,
-        #          tags = None,
-        #          arguments = None,
-        #          connections = [ glue_sampo_oracle_connection.connection ],
-        #          enable_spark_ui = False,
-        #          schedule = "0 12 24 * ? *",
-        #          schedule_description = "Normaali ajastus"
-        # )
+        glue_sampo_oracle_connection = GlueJdbcConnection(self,
+                                id = "sampo-jdbc-oracle-connection",
+                                vpc = vpc,
+                                security_groups = [ glue_securitygroup ],
+                                properties = {
+                                    "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//<host>:<port>/<sid>",
+                                    "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
+                                    "JDBC_DRIVER_JAR_URI": f"s3://{script_bucket_name}/drivers/oracle/ojdbc8.jar",
+                                    "USERNAME": "dummy",
+                                    "PASSWORD": "dummy",
+                                    "JDBC_ENFORCE_SSL": "false"
+                                })
+        g1 = PythonSparkGlueJob(self,
+                 id = "sampo_db_reader", 
+                 path = "glue/sampo_db_reader",
+                 index = "sampo_db_reader.py",
+                 script_bucket = script_bucket,
+                 timeout_min = 1,
+                 description = "For querying Sampo views and create files for TalousDV ADE loads",
+                 worker = "G 1X",
+                 version = "3.0",
+                 role = glue_role,
+                 tags = None,
+                 arguments = {
+                     "--db_tables": get_parameter("glue/sampo_db_reader", environment, "db_tables"),
+                     "--dev_trgt_bucket": target_bucket_name,
+                     "--prod_trgt_bucket": target_bucket_name,
+                     "--target_bucket": target_bucket_name,
+                     "--temp_bucket": temp_bucket_name,
+                     "--driver_path": f"s3://{script_bucket_name}/drivers/oracle/ojdbc8.jar",
+                     "--secretname": f"db-sampo-oracle-{environment}"
+
+                 },
+                 connections = [ glue_sampo_oracle_connection.connection ],
+                 #enable_spark_ui = True,
+                 #spark_log_bucket = log_bucket,
+                 #spark_log_prefix = "glue/sampo_db_reader",
+                 schedule = get_parameter("glue/sampo_db_reader", environment, "schedule"),
+                 schedule_description = "Load data from Sampo (source oracle db) views to ADE-files"
+        )
 
 

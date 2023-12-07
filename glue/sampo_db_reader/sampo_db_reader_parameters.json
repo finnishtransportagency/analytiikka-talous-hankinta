@@ -1,0 +1,11 @@
+{
+    "dev": {
+        "db_tables": "niku.vt_liikenne12_obs,niku.vt_fixedasset_year_calc_new,niku.vt_prog_proj_oper,niku.vt_proj_fixedasset,niku.vt_tyomaa,niku.vt_valtuudet,niku.vt_tuote2013_obs,niku.vt_inv_hierarchies,niku.vt_siddosryhma,niku.vt_tilaus_uusi,niku.vt_sopimus_uusi,niku.vt_resursii,niku.vt_prog_proj_oper_hier,niku.vt_maksuera,niku.vt_kustannussuunnitelma,niku.vt_allowance_object,niku.vt_kustannuss_erittely",
+        "schedule": ""
+    },
+    "prod": {
+        "db_tables": "niku.vt_liikenne12_obs,niku.vt_fixedasset_year_calc_new,niku.vt_prog_proj_oper,niku.vt_proj_fixedasset,niku.vt_tyomaa,niku.vt_valtuudet,niku.vt_tuote2013_obs,niku.vt_inv_hierarchies,niku.vt_siddosryhma,niku.vt_tilaus_uusi,niku.vt_sopimus_uusi,niku.vt_resursii,niku.vt_prog_proj_oper_hier,niku.vt_maksuera,niku.vt_kustannussuunnitelma,niku.vt_allowance_object,niku.vt_kustannuss_erittely",
+        "schedule": "30 2 * * ? *"
+    }
+
+}

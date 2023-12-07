@@ -21,7 +21,7 @@ Apukoodit glue- ajojen luontiin
 """
 
 
-
+# TODO: SPARK UI testaamatta
 
 
 """
@@ -148,6 +148,8 @@ class PythonSparkGlueJob(Construct):
                  arguments: dict = None,
                  connections: list = None,
                  enable_spark_ui: bool = False,
+                 spark_log_bucket: aws_s3.IBucket = None,
+                 spark_log_prefix: str = None,
                  schedule: str = None,
                  schedule_description: str = None
                  ):
@@ -167,7 +169,9 @@ class PythonSparkGlueJob(Construct):
                                            id = id,
                                            job_name = id,
                                            spark_ui = aws_glue_alpha.SparkUIProps(
-                                               enabled = enable_spark_ui
+                                               enabled = enable_spark_ui,
+                                               bucket = spark_log_bucket,
+                                               prefix = spark_log_prefix
                                            ),
                                            executable = aws_glue_alpha.JobExecutable.python_etl(
                                                glue_version = get_version(version),
