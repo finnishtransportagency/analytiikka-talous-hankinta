@@ -224,6 +224,7 @@ class AnalytiikkaServicesStack(Stack):
                                 id = "sampo-jdbc-oracle-connection",
                                 vpc = vpc,
                                 security_groups = [ glue_securitygroup ],
+                                project_tag = "Sampo",
                                 properties = {
                                     "JDBC_CONNECTION_URL": "jdbc:oracle:thin:@//<host>:<port>/<sid>",
                                     "JDBC_DRIVER_CLASS_NAME": "oracle.jdbc.driver.OracleDriver",
@@ -232,7 +233,7 @@ class AnalytiikkaServicesStack(Stack):
                                     "PASSWORD": "dummy",
                                     "JDBC_ENFORCE_SSL": "false"
                                 })
-        g1 = PythonSparkGlueJob(self,
+        glue_sampo = PythonSparkGlueJob(self,
                  id = "sampo_db_reader", 
                  path = "glue/sampo_db_reader",
                  index = "sampo_db_reader.py",
